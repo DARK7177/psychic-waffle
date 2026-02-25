@@ -1,0 +1,101 @@
+# =========================
+
+# Node modules (both client & server)
+
+# =========================
+
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# =========================
+
+# Environment variables
+
+# =========================
+
+.env
+.env.local
+.env.development
+.env.production
+client/.env
+server/.env
+
+# =========================
+
+# Logs
+
+# =========================
+
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+
+# Build output (frontend & backend)
+
+# =========================
+
+dist/
+build/
+out/
+client/dist/
+server/dist/
+
+# =========================
+
+# Prisma
+
+# =========================
+
+.prisma/
+server/prisma/dev.db
+server/prisma/dev.db-journal
+
+# =========================
+
+# OS files
+
+# =========================
+
+.DS_Store
+Thumbs.db
+
+# =========================
+
+# Editor folders
+
+# =========================
+
+.vscode/
+.idea/
+
+# =========================
+
+# Cache / temp
+
+# =========================
+
+.cache/
+tmp/
+temp/
+
+# =========================
+
+# Coverage
+
+# =========================
+
+coverage/
+
+# =========================
+
+# Optional uploads
+
+# =========================
+
+uploads/
+

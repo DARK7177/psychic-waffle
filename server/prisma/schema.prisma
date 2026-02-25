@@ -1,0 +1,64 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Teacher {
+    id        String   @id @default(uuid())
+    name      String
+    email     String   @unique
+    password  String
+    createdAt DateTime @default(now())
+
+    sessions Session[]
+}
+
+model Course {
+    id       String    @id @default(uuid())
+    name     String    @unique // Eg BTech , Bca , Mca and Bba etc 
+    students Student[]
+    sessions Session[]
+}
+
+model Student {
+    id        String   @id @default(uuid())
+    name      String
+    email     String   @unique
+    password  String
+    photoUrl  String
+    qrCode    String?
+    createdAt DateTime @default(now())
+
+    courseId String
+    course   Course @relation(fields: [courseId], references: [id])
+
+    attendance Attendance[]
+}
+
+model Session {
+    id      String   @id @default(uuid())
+    subject String
+    date    DateTime @default(now())
+
+    teacherId String
+    teacher   Teacher @relation(fields: [teacherId], references: [id])
+
+    courseId String
+    course   Course @relation(fields: [courseId], references: [id])
+
+    attendance Attendance[]
+}
+
+model Attendance {
+    id        String   @id @default(uuid())
+    studentId String
+    sessionId String
+    markedAt  DateTime @default(now())
+
+    student Student @relation(fields: [studentId], references: [id])
+    session Session @relation(fields: [sessionId], references: [id])
+}
