@@ -1,64 +1,80 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Teacher {
-    id        String   @id @default(uuid())
-    name      String
-    email     String   @unique
-    password  String
-    createdAt DateTime @default(now())
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
 
-    sessions Session[]
+  subjects  Subject[]
+  sessions  Session[]
 }
 
 model Course {
-    id       String    @id @default(uuid())
-    name     String    @unique // Eg BTech , Bca , Mca and Bba etc 
-    students Student[]
-    sessions Session[]
+  code     String    @id
+  name     String    @unique
+
+  students Student[]
+  subjects Subject[]
+}
+
+model Subject {
+  id         String   @id @default(uuid())
+  name       String
+
+  courseCode String
+  teacherId  String
+
+  course     Course   @relation(fields: [courseCode], references: [code])
+  teacher    Teacher  @relation(fields: [teacherId], references: [id])
+
+  sessions   Session[]
 }
 
 model Student {
-    id        String   @id @default(uuid())
-    name      String
-    email     String   @unique
-    password  String
-    photoUrl  String
-    qrCode    String?
-    createdAt DateTime @default(now())
+  id         String       @id @default(uuid())
+  name       String
+  email      String       @unique
+  password   String
+  photoUrl   String
+  qrCode     String?
+  createdAt  DateTime     @default(now())
 
-    courseId String
-    course   Course @relation(fields: [courseId], references: [id])
+  courseCode String
+  course     Course       @relation(fields: [courseCode], references: [code])
 
-    attendance Attendance[]
+  attendance Attendance[]
 }
 
 model Session {
-    id      String   @id @default(uuid())
-    subject String
-    date    DateTime @default(now())
+  id        String   @id @default(uuid())
+  subjectId String
+  date      DateTime @default(now())
 
-    teacherId String
-    teacher   Teacher @relation(fields: [teacherId], references: [id])
+  teacherId String
 
-    courseId String
-    course   Course @relation(fields: [courseId], references: [id])
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  teacher   Teacher  @relation(fields: [teacherId], references: [id])
 
-    attendance Attendance[]
+  attendance Attendance[]
 }
 
 model Attendance {
-    id        String   @id @default(uuid())
-    studentId String
-    sessionId String
-    markedAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  studentId String
+  sessionId String
+  markedAt  DateTime @default(now())
 
-    student Student @relation(fields: [studentId], references: [id])
-    session Session @relation(fields: [sessionId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id])
+  session   Session  @relation(fields: [sessionId], references: [id])
+
+  @@unique([studentId, sessionId])
 }

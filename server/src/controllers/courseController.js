@@ -1,15 +1,21 @@
 const { PrismaClient } = require('@prisma/client');
-const asyncHandler = require('../utils/asyncHandle');
+const asyncHandler = require('../utils/asyncHandler');
 
 const prisma = new PrismaClient();
 
 exports.createCourse = asyncHandler(async (req, res) => {
-    const { name } = req.body;
+    const { code, name } = req.body;
 
-    const exitsing = await prisma.course.findUnique({ where: { name } });
-    if (exitsing) return res.status(400).json({ message: "Course Already Exists" });
+    const existing = await prisma.course.findUnique({
+        where: { code }
+    });
 
-    const course = await prisma.course.create({ data: { name } });
+    if (existing)
+        return res.status(400).json({ message: "Course already exists" });
+
+    const course = await prisma.course.create({
+        data: { code, name }
+    });
 
     res.status(201).json(course);
 });
@@ -19,12 +25,12 @@ exports.getCourses = asyncHandler(async (req, res) => {
     res.json(courses);
 });
 
-exports.getCoursesStudents = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+exports.getCourseStudents = asyncHandler(async (req, res) => {
+    const { code } = req.params;
 
     const students = await prisma.student.findMany({
-        where: { courseId: id },
+        where: { courseCode: code }
     });
 
     res.json(students);
-})
+});
