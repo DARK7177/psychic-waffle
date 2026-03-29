@@ -62,14 +62,15 @@ exports.registerStudent = asyncHandler(async (req, res) => {
 
 exports.registerTeacher = asyncHandler(async (req, res) => {
 
-    const { name, email, password } = req.body;
+    const { name, password, photoUrl } = req.body;
 
-    // ✅ Check BOTH tables
-    const existingStudent = await prisma.student.findUnique({
+    const email = req.body.email.trim().toLowerCase();
+
+    const existingStudent = await prisma.student.findFirst({
         where: { email }
     });
 
-    const existingTeacher = await prisma.teacher.findUnique({
+    const existingTeacher = await prisma.teacher.findFirst({
         where: { email }
     });
 
@@ -86,7 +87,7 @@ exports.registerTeacher = asyncHandler(async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            photoUrl
+            photoUrl: photoUrl || ""
         }
     });
 
