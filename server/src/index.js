@@ -11,6 +11,8 @@ const subjectRoute = require('./routes/subjectRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const teacherRoutes = require('./routes/teacherRoutes');
 
+const app = express();
+
 const cors = require("cors");
 
 const allowedOrigins = [
