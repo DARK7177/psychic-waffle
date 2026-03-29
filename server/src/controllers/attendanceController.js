@@ -17,6 +17,10 @@ exports.markAttendance = asyncHandler(async (req, res) => {
     if (!session)
         return res.status(404).json({ message: "Session not found" });
 
+    if (session.status === "closed") {
+        return req.status(400).json({ message: "Session Already Closed" });
+    }
+
     const student = await prisma.student.findUnique({
         where: { id: studentId }
     });

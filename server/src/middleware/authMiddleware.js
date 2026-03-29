@@ -11,10 +11,19 @@ const protect = (req, res, next) => {
     if (!token)
         return res.status(401).json({ message: "Invalid token format" });
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decoded;
-    next();
-}
+        req.user = {
+            id: decoded.id,
+            role: decoded.role
+        };
+
+        next();
+
+    } catch (err) {
+        return res.status(401).json({ message: "Invalid or expired token" });
+    }
+};
 
 module.exports = protect;

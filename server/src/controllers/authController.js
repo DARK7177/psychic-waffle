@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('../utils/asyncHandler');
 const QRCode = require("qrcode");
+
 const prisma = new PrismaClient();
 
 const generateToken = (id, role) => {
@@ -19,8 +20,15 @@ exports.registerStudent = asyncHandler(async (req, res) => {
         where: { email }
     });
 
-    if (existingStudent)
-        return res.status(400).json({ message: "Student already exists" });
+    const existingTeacher = await prisma.teacher.findUnique({
+        where: { email }
+    });
+
+    if (existingStudent || existingTeacher) {
+        return res.status(400).json({
+            message: "Email already registered as a student or teacher"
+        });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -53,12 +61,23 @@ exports.registerStudent = asyncHandler(async (req, res) => {
 });
 
 exports.registerTeacher = asyncHandler(async (req, res) => {
+
     const { name, email, password } = req.body;
 
-    const existingTeacher = await prisma.teacher.findUnique({ where: { email } });
+    // ✅ Check BOTH tables
+    const existingStudent = await prisma.student.findUnique({
+        where: { email }
+    });
 
-    if (existingTeacher)
-        return res.status(400).json({ message: "Teacher already exists" });
+    const existingTeacher = await prisma.teacher.findUnique({
+        where: { email }
+    });
+
+    if (existingStudent || existingTeacher) {
+        return res.status(400).json({
+            message: "Email already registered as a student or teacher"
+        });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -66,7 +85,8 @@ exports.registerTeacher = asyncHandler(async (req, res) => {
         data: {
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            photoUrl
         }
     });
 
@@ -74,9 +94,11 @@ exports.registerTeacher = asyncHandler(async (req, res) => {
         message: "Teacher registered successfully",
         teacher
     });
+
 });
 
 exports.login = asyncHandler(async (req, res) => {
+
     const { email, password } = req.body;
 
     let user = await prisma.student.findUnique({ where: { email } });
@@ -87,20 +109,25 @@ exports.login = asyncHandler(async (req, res) => {
         role = "teacher";
     }
 
-    if (!user)
+    if (!user) {
         return res.status(400).json({ message: "User not found" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
-    if (!isMatch)
+    if (!isMatch) {
         return res.status(400).json({ message: "Invalid credentials" });
+    }
 
     const token = generateToken(user.id, role);
+
+    const { password: _, ...safeUser } = user;
 
     res.json({
         message: "Login successful",
         token,
         role,
-        user
+        user: safeUser
     });
+
 });

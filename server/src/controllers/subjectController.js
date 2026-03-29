@@ -23,6 +23,22 @@ exports.createSubject = asyncHandler(async (req, res) => {
     });
 
     res.status(201).json(subject);
+
+});
+
+exports.getTeacherSubjects = asyncHandler(async (req, res) => {
+
+    const subjects = await prisma.subject.findMany({
+        where: {
+            teacherId: req.user.id
+        },
+        include: {
+            course: true
+        }
+    });
+
+    res.json(subjects);
+
 });
 
 exports.getCourseSubjects = asyncHandler(async (req, res) => {
@@ -37,4 +53,5 @@ exports.getCourseSubjects = asyncHandler(async (req, res) => {
     });
 
     res.json(subjects);
+
 });

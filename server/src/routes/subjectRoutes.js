@@ -6,10 +6,13 @@ const allowRoles = require("../middleware/roleMiddleware");
 
 const {
     createSubject,
+    getTeacherSubjects,
     getCourseSubjects
 } = require("../controllers/subjectController");
 
 router.post("/", protect, allowRoles("teacher"), createSubject);
+router.get("/", protect, allowRoles("teacher"), getTeacherSubjects);
 router.get("/:courseCode", protect, getCourseSubjects);
+
 
 module.exports = router;

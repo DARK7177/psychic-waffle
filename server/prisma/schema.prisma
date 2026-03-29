@@ -8,48 +8,51 @@ datasource db {
 }
 
 model Teacher {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
-  email     String    @unique
+  email     String   @unique
   password  String
-  createdAt DateTime  @default(now())
+  photoUrl  String
+  createdAt DateTime @default(now())
 
-  subjects  Subject[]
-  sessions  Session[]
+  subjects Subject[]
+  sessions Session[]
 }
 
 model Course {
-  code     String    @id
-  name     String    @unique
+  code String @id
+  name String @unique
 
   students Student[]
   subjects Subject[]
 }
 
 model Subject {
-  id         String   @id @default(uuid())
-  name       String
+  id   String @id @default(uuid())
+  name String
 
   courseCode String
   teacherId  String
 
-  course     Course   @relation(fields: [courseCode], references: [code])
-  teacher    Teacher  @relation(fields: [teacherId], references: [id])
+  course  Course  @relation(fields: [courseCode], references: [code])
+  teacher Teacher @relation(fields: [teacherId], references: [id])
 
-  sessions   Session[]
+  sessions Session[]
+
+  @@unique([name, courseCode])
 }
 
 model Student {
-  id         String       @id @default(uuid())
-  name       String
-  email      String       @unique
-  password   String
-  photoUrl   String
-  qrCode     String?
-  createdAt  DateTime     @default(now())
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  photoUrl  String
+  qrCode    String?
+  createdAt DateTime @default(now())
 
   courseCode String
-  course     Course       @relation(fields: [courseCode], references: [code])
+  course     Course @relation(fields: [courseCode], references: [code])
 
   attendance Attendance[]
 }
@@ -60,9 +63,10 @@ model Session {
   date      DateTime @default(now())
 
   teacherId String
+  status    String @default("active")
 
-  subject   Subject  @relation(fields: [subjectId], references: [id])
-  teacher   Teacher  @relation(fields: [teacherId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+  teacher Teacher @relation(fields: [teacherId], references: [id])
 
   attendance Attendance[]
 }
@@ -73,8 +77,8 @@ model Attendance {
   sessionId String
   markedAt  DateTime @default(now())
 
-  student   Student  @relation(fields: [studentId], references: [id])
-  session   Session  @relation(fields: [sessionId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+  session Session @relation(fields: [sessionId], references: [id])
 
   @@unique([studentId, sessionId])
 }
