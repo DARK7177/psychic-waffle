@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const dotenv = require('dotenv');
 dotenv.config();
 console.log(process.env.DATABASE_URL)
@@ -12,7 +11,7 @@ const subjectRoute = require('./routes/subjectRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const teacherRoutes = require('./routes/teacherRoutes');
 
-const app = express();
+const cors = require("cors");
 
 const allowedOrigins = [
     "http://localhost:5173",
