@@ -14,15 +14,7 @@ const teacherRoutes = require('./routes/teacherRoutes');
 
 const app = express();
 
-app.use(cors({
-    origin: [
-        "http://localhost:5173",
-        "https://psychic-waffle-opal.vercel.app",
-        "https://bhupeshkumar.me"
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
-}));
+app.use(cors({ origin: "*" }));
 
 app.use(express.json());
 app.use(errorHandler);
