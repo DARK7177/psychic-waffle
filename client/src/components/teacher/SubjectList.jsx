@@ -1,45 +1,18 @@
-import { useEffect, useState } from "react";
-import api from "../../services/api";
+export default function SubjectList({ subjects, onStartSession }) {
 
-export default function SubjectList({ onStartSession }) {
-
-    const [subjects, setSubjects] = useState([]);
     const [loadingId, setLoadingId] = useState(null);
-
-    useEffect(() => {
-
-        const loadSubjects = async () => {
-            try {
-                const token = localStorage.getItem("token");
-
-                const res = await api.get("/api/subjects", {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-
-                setSubjects(res.data);
-
-            } catch (err) {
-                console.error("Failed to load subjects");
-            }
-        };
-
-        loadSubjects();
-
-    }, []);
 
     return (
 
         <div className="space-y-4">
 
-            {subjects.length === 0 && (
+            {(!subjects || subjects.length === 0) && (
                 <p className="text-gray-400">
                     No subjects created yet
                 </p>
             )}
 
-            {subjects.map((subject) => (
+            {subjects?.map((subject) => (
                 <div
                     key={subject.id}
                     className="flex justify-between items-center p-4 rounded-xl bg-white/10 hover:bg-white/20 transition backdrop-blur-md border border-white/10"
@@ -54,7 +27,6 @@ export default function SubjectList({ onStartSession }) {
                             {subject.courseCode}
                         </p>
                     </div>
-
 
                     <button
                         onClick={async () => {
@@ -73,5 +45,4 @@ export default function SubjectList({ onStartSession }) {
         </div>
 
     );
-
 }
