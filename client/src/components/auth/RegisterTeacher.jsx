@@ -9,6 +9,8 @@ export default function RegisterTeacher() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [photoUrl, setPhotoUrl] = useState(""); // ✅ NEW
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -25,10 +27,12 @@ export default function RegisterTeacher() {
             await api.post("/api/auth/teacher/register", {
                 name,
                 email,
-                password
+                password,
+                photoUrl
             });
 
             navigate("/");
+
         } catch (err) {
             setError(err.response?.data?.message || "Registration failed");
         } finally {
@@ -55,12 +59,14 @@ export default function RegisterTeacher() {
 
                 <input
                     placeholder="Name"
+                    value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="w-full mb-3 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
                 />
 
                 <input
                     placeholder="Email"
+                    value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full mb-3 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
                 />
@@ -68,7 +74,15 @@ export default function RegisterTeacher() {
                 <input
                     type="password"
                     placeholder="Password"
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    className="w-full mb-3 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
+                />
+
+                <input
+                    placeholder="Photo URL (optional)"
+                    value={photoUrl}
+                    onChange={(e) => setPhotoUrl(e.target.value)}
                     className="w-full mb-5 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
                 />
 
