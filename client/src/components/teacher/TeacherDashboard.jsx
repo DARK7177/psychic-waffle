@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../../services/api";
 
 import Navbar from "../shared/Navbar";
@@ -10,6 +10,29 @@ import CreateSubject from "./CreateSubject";
 export default function TeacherDashboard() {
 
     const [sessionId, setSessionId] = useState("");
+    const [courses, setCourses] = useState([]);
+
+    // 🔥 Load courses once
+    useEffect(() => {
+        fetchCourses();
+    }, []);
+
+    const fetchCourses = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            const res = await api.get("/api/courses", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            setCourses(res.data);
+
+        } catch (err) {
+            console.error("Failed to fetch courses");
+        }
+    };
 
     const startSession = async (subjectId) => {
         try {
@@ -33,7 +56,6 @@ export default function TeacherDashboard() {
     };
 
     return (
-
         <div className="min-h-screen bg-linear-to-br from-black via-zinc-950 to-black text-white">
 
             <Navbar />
@@ -46,17 +68,19 @@ export default function TeacherDashboard() {
 
                 <div className="grid md:grid-cols-2 gap-6">
 
-                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-[0_0_40px_rgba(255,255,255,0.05)]">
-                        <CreateCourse />
+                    {/* 🔥 pass setCourses */}
+                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+                        <CreateCourse setCourses={setCourses} />
                     </div>
 
-                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-[0_0_40px_rgba(255,255,255,0.05)]">
-                        <CreateSubject />
+                    {/* 🔥 pass courses */}
+                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+                        <CreateSubject courses={courses} />
                     </div>
 
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-[0_0_40px_rgba(255,255,255,0.05)]">
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
 
                     <h3 className="text-lg font-semibold mb-4">
                         Your Subjects
@@ -67,7 +91,7 @@ export default function TeacherDashboard() {
                 </div>
 
                 {sessionId && (
-                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-[0_0_40px_rgba(255,255,255,0.05)]">
+                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
 
                         <h3 className="text-lg font-semibold mb-4">
                             Active Session
@@ -85,6 +109,5 @@ export default function TeacherDashboard() {
             </div>
 
         </div>
-
     );
 }
