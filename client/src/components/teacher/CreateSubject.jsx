@@ -1,7 +1,7 @@
 import { useState } from "react";
 import api from "../../services/api";
 
-export default function CreateSubject({ courses }) {
+export default function CreateSubject({ courses, setSubjects }) {
 
     const [name, setName] = useState("");
     const [courseCode, setCourseCode] = useState("");
@@ -29,12 +29,21 @@ export default function CreateSubject({ courses }) {
                 }
             );
 
+            const res = await api.get("/api/subjects", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            setSubjects(res.data);
+
             alert("Subject created");
 
             setName("");
             setCourseCode("");
 
         } catch (err) {
+            console.error(err);
             alert(err.response?.data?.message || "Error");
         } finally {
             setLoading(false);
@@ -67,7 +76,11 @@ export default function CreateSubject({ courses }) {
                     </option>
 
                     {courses.map(course => (
-                        <option key={course.code} value={course.code} className="text-black">
+                        <option
+                            key={course.code}
+                            value={course.code}
+                            className="text-black"
+                        >
                             {course.name} ({course.code})
                         </option>
                     ))}
