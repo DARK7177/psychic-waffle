@@ -15,9 +15,13 @@ const teacherRoutes = require('./routes/teacherRoutes');
 const app = express();
 
 app.use(cors({
-    origin: "*",
-    credentials: true,
+    origin: [
+        "http://localhost:5173",
+        "https://bhupeshkumar.me"
+    ],
+    credentials: true
 }));
+
 app.use(express.json());
 app.use(errorHandler);
 app.use('/api/auth', authRoutes)
