@@ -37,7 +37,6 @@ export default function QRScanner({ sessionId }) {
 
                         alert("Attendance marked ✅");
 
-                        // ✅ Stop scanning after success (important)
                         scanner.clear();
 
                     } catch (err) {
@@ -45,14 +44,12 @@ export default function QRScanner({ sessionId }) {
                     }
                 },
                 (error) => {
-                    // optional: ignore scan errors
                 }
             );
         };
 
         startScanner();
 
-        // ✅ Cleanup (VERY IMPORTANT)
         return () => {
             if (scanner) {
                 scanner.clear().catch(() => { });

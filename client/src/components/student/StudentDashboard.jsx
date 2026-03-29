@@ -9,7 +9,7 @@ import StudentQR from "./StudentQR";
 export default function StudentDashboard() {
     const [student, setStudent] = useState(null);
     const [attendance, setAttendance] = useState(null);
-    const [activeSession, setActiveSession] = useState(null); // ✅ NEW
+    const [activeSession, setActiveSession] = useState(null);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -34,7 +34,6 @@ export default function StudentDashboard() {
 
                 setAttendance(stats.data);
 
-                // ✅ NEW → Fetch active session
                 if (res.data.courseCode) {
                     const sessionRes = await api.get(
                         `/api/sessions/active/${res.data.courseCode}`,
@@ -82,7 +81,6 @@ export default function StudentDashboard() {
 
                 </div>
 
-                {/* ✅ UPDATED COURSE SECTION */}
                 <div className="mt-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-[0_0_40px_rgba(255,255,255,0.05)]">
 
                     <h3 className="text-lg font-semibold mb-4">
@@ -100,7 +98,6 @@ export default function StudentDashboard() {
                                 Code: {student.course.code}
                             </p>
 
-                            {/* ✅ ACTIVE SESSION */}
                             {activeSession ? (
                                 <div className="mt-3 text-green-400 text-sm font-medium">
                                     🟢 Live Session Active ({activeSession.subject.name})
@@ -120,7 +117,6 @@ export default function StudentDashboard() {
 
                 </div>
 
-                {/* ATTENDANCE */}
                 {attendance && (
                     <div className="mt-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-[0_0_40px_rgba(255,255,255,0.05)]">
 

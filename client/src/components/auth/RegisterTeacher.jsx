@@ -9,7 +9,7 @@ export default function RegisterTeacher() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [photoUrl, setPhotoUrl] = useState(""); // ✅ NEW
+    const [photoUrl, setPhotoUrl] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");

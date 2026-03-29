@@ -42,7 +42,6 @@ export default function TeacherProfilePage() {
 
             <div className="max-w-5xl mx-auto p-6">
 
-                {/* HEADER */}
                 <div className="mb-8 flex items-center justify-between">
 
                     <h2 className="text-3xl font-semibold">
@@ -58,12 +57,10 @@ export default function TeacherProfilePage() {
 
                 </div>
 
-                {/* PROFILE CARD */}
                 <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-[0_0_40px_rgba(255,255,255,0.05)]">
 
                     <div className="grid md:grid-cols-2 gap-8 items-center">
 
-                        {/* LEFT → Image */}
                         <div className="flex justify-center">
                             <div className="bg-white p-4 rounded-xl shadow-inner">
                                 <img
@@ -74,7 +71,6 @@ export default function TeacherProfilePage() {
                             </div>
                         </div>
 
-                        {/* RIGHT → Details */}
                         <div className="space-y-4">
 
                             <h3 className="text-2xl font-semibold">
