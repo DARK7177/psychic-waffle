@@ -41,7 +41,7 @@ export default function RegisterStudent() {
     };
 
     return (
-        <div className="relative h-screen flex items-center justify-center overflow-hidden bg-linear-to-br from-black via-zinc-900 to-black">s
+        <div className="relative h-screen flex items-center justify-center overflow-hidden bg-linear-to-br from-black via-zinc-900 to-black">
 
             <Fireflies />
 
