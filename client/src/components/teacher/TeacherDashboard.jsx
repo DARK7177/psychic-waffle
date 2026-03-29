@@ -10,11 +10,13 @@ import CreateSubject from "./CreateSubject";
 export default function TeacherDashboard() {
 
     const [sessionId, setSessionId] = useState("");
-    const [courses, setCourses] = useState([]);
 
-    // 🔥 Load courses once
+    const [courses, setCourses] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+
     useEffect(() => {
         fetchCourses();
+        fetchSubjects();
     }, []);
 
     const fetchCourses = async () => {
@@ -31,6 +33,23 @@ export default function TeacherDashboard() {
 
         } catch (err) {
             console.error("Failed to fetch courses");
+        }
+    };
+
+    const fetchSubjects = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            const res = await api.get("/api/subjects", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            setSubjects(res.data);
+
+        } catch (err) {
+            console.error("Failed to fetch subjects");
         }
     };
 
@@ -68,14 +87,15 @@ export default function TeacherDashboard() {
 
                 <div className="grid md:grid-cols-2 gap-6">
 
-                    {/* 🔥 pass setCourses */}
                     <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
                         <CreateCourse setCourses={setCourses} />
                     </div>
 
-                    {/* 🔥 pass courses */}
                     <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-                        <CreateSubject courses={courses} />
+                        <CreateSubject
+                            courses={courses}
+                            setSubjects={setSubjects}
+                        />
                     </div>
 
                 </div>
@@ -86,7 +106,10 @@ export default function TeacherDashboard() {
                         Your Subjects
                     </h3>
 
-                    <SubjectList onStartSession={startSession} />
+                    <SubjectList
+                        subjects={subjects}
+                        onStartSession={startSession}
+                    />
 
                 </div>
 

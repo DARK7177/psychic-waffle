@@ -6,9 +6,7 @@ export default function CreateCourse({ setCourses }) {
     const [code, setCode] = useState("");
     const [name, setName] = useState("");
     const [loading, setLoading] = useState(false);
-
     const createCourse = async () => {
-
         if (!code || !name) {
             alert("Please fill all fields");
             return;
@@ -19,7 +17,7 @@ export default function CreateCourse({ setCourses }) {
 
             const token = localStorage.getItem("token");
 
-            const res = await api.post(
+            await api.post(
                 "/api/courses",
                 { code, name },
                 {
@@ -29,21 +27,26 @@ export default function CreateCourse({ setCourses }) {
                 }
             );
 
-            alert("Course created");
+            const res = await api.get("/api/courses", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
 
-            // 🔥 update instantly (NO REFRESH)
-            setCourses(prev => [...prev, res.data]);
+            setCourses(res.data);
+
+            alert("Course created");
 
             setCode("");
             setName("");
 
         } catch (err) {
+            console.error(err);
             alert(err.response?.data?.message || "Failed");
         } finally {
             setLoading(false);
         }
     };
-
     return (
         <div className="h-full flex flex-col justify-between">
 
