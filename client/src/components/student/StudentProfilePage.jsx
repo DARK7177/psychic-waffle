@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
 import Navbar from "../shared/Navbar";
@@ -9,21 +10,38 @@ export default function StudentProfilePage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+    const navigate = useNavigate();
+
     useEffect(() => {
         const loadProfile = async () => {
             try {
                 const token = localStorage.getItem("token");
 
+                console.log("TOKEN:", token);
+
+                if (!token) {
+                    setError("No token found. Please login again.");
+                    setLoading(false);
+                    return;
+                }
+
                 const res = await api.get("/api/student/profile", {
                     headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                        Authorization: `Bearer ${token}`,
+                    },
                 });
+
+                console.log("STUDENT PROFILE:", res.data);
 
                 setStudent(res.data);
 
             } catch (err) {
-                setError("Failed to load profile");
+                console.error("PROFILE ERROR:", err);
+
+                setError(
+                    err?.response?.data?.message ||
+                    "Failed to load profile"
+                );
             } finally {
                 setLoading(false);
             }
@@ -33,7 +51,14 @@ export default function StudentProfilePage() {
     }, []);
 
     if (loading) return <Loader />;
-    if (error) return <p className="p-6 text-red-500">{error}</p>;
+
+    if (error) {
+        return (
+            <div className="p-6 text-red-500">
+                {error}
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-linear-to-br from-black via-zinc-950 to-black text-white">
@@ -49,7 +74,7 @@ export default function StudentProfilePage() {
                     </h2>
 
                     <button
-                        onClick={() => window.location.href = "/student"}
+                        onClick={() => navigate("/student")}
                         className="text-sm text-gray-400 hover:text-white transition px-3 py-1 rounded-md hover:bg-white/10"
                     >
                         ← Back
@@ -74,11 +99,11 @@ export default function StudentProfilePage() {
                         <div className="space-y-4">
 
                             <h3 className="text-2xl font-semibold">
-                                {student?.name}
+                                {student?.name || "No Name"}
                             </h3>
 
                             <p className="text-gray-400">
-                                {student?.email}
+                                {student?.email || "No Email"}
                             </p>
 
                             {student?.course && (
@@ -87,7 +112,7 @@ export default function StudentProfilePage() {
                                         Course
                                     </p>
                                     <p className="font-medium">
-                                        {student.course.name} ({student.course.code})
+                                        {student.course?.name || "N/A"} ({student.course?.code || "N/A"})
                                     </p>
                                 </div>
                             )}
@@ -97,7 +122,7 @@ export default function StudentProfilePage() {
                                     Student ID
                                 </p>
                                 <p className="font-medium">
-                                    {student?.id}
+                                    {student?.id || "N/A"}
                                 </p>
                             </div>
 

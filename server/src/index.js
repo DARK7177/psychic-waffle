@@ -1,7 +1,9 @@
 const express = require('express');
 const dotenv = require('dotenv');
 dotenv.config();
-console.log(process.env.DATABASE_URL)
+
+const cors = require("cors");
+
 const errorHandler = require('./middleware/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const courseRoute = require('./routes/courseRoutes');
@@ -13,7 +15,7 @@ const teacherRoutes = require('./routes/teacherRoutes');
 
 const app = express();
 
-const cors = require("cors");
+console.log(process.env.DATABASE_URL);
 
 const allowedOrigins = [
     "http://localhost:5173",
@@ -32,11 +34,9 @@ app.use(cors({
     credentials: true
 }));
 
-app.options("*", cors());
-
 app.use(express.json());
-app.use(errorHandler);
-app.use('/api/auth', authRoutes)
+
+app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoute);
 app.use('/api/sessions', sessionRoute);
 app.use('/api/attendance', attendanceRoute);
@@ -45,11 +45,13 @@ app.use('/api/student', studentRoutes);
 app.use('/api/teacher', teacherRoutes);
 
 app.get('/', (req, res) => {
-    res.send("QR Attendance Backend Running")
+    res.send("QR Attendance Backend Running");
 });
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${PORT}`)
-})
+    console.log(`Server running on port ${PORT}`);
+});

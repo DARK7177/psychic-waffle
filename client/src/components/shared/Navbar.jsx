@@ -1,22 +1,33 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
     const [isHover, setIsHover] = useState(false);
     const [open, setOpen] = useState(false);
 
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const navigate = useNavigate();
+
+    const user = JSON.parse(localStorage.getItem("user") ?? "null");
     const role = localStorage.getItem("role");
 
     const logout = () => {
         localStorage.clear();
-        window.location.href = "/";
+        navigate("/");
     };
 
     const goToProfile = () => {
         if (role === "teacher") {
-            window.location.href = "/teacher/profile";
+            navigate("/teacher/profile");
         } else {
-            window.location.href = "/student/profile";
+            navigate("/student/profile");
+        }
+    };
+
+    const goToDashboard = () => {
+        if (role === "teacher") {
+            navigate("/teacher");
+        } else {
+            navigate("/student");
         }
     };
 
@@ -24,15 +35,10 @@ export default function Navbar() {
         <div className="sticky top-0 z-50 backdrop-blur-lg bg-white/10 border-b border-white/20 shadow-lg">
             <div className="flex justify-between items-center px-6 py-3">
 
-                <h1 onClick={() => {
-                    const role = localStorage.getItem("role");
-
-                    if (role === "teacher") {
-                        window.location.href = "/teacher";
-                    } else {
-                        window.location.href = "/student";
-                    }
-                }} className="text-2xl font-bold bg-linear-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent tracking-wide cursor-pointer">
+                <h1
+                    onClick={goToDashboard}
+                    className="text-2xl font-bold bg-linear-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent tracking-wide cursor-pointer"
+                >
                     QR Attendance
                 </h1>
 

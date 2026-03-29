@@ -14,16 +14,30 @@ export default function TeacherProfilePage() {
             try {
                 const token = localStorage.getItem("token");
 
+                console.log("TOKEN:", token);
+
+                if (!token) {
+                    setError("No token found. Please login again.");
+                    setLoading(false);
+                    return;
+                }
+
                 const res = await api.get("/api/teacher/profile", {
                     headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                        Authorization: `Bearer ${token}`,
+                    },
                 });
+
+                console.log("PROFILE DATA:", res.data);
 
                 setTeacher(res.data);
 
             } catch (err) {
-                setError("Failed to load profile");
+                console.error("PROFILE ERROR:", err);
+                setError(
+                    err?.response?.data?.message ||
+                    "Failed to load profile"
+                );
             } finally {
                 setLoading(false);
             }
@@ -33,7 +47,13 @@ export default function TeacherProfilePage() {
     }, []);
 
     if (loading) return <Loader />;
-    if (error) return <p className="p-6 text-red-500">{error}</p>;
+
+    if (error)
+        return (
+            <div className="p-6 text-red-500">
+                {error}
+            </div>
+        );
 
     return (
         <div className="min-h-screen bg-linear-to-br from-black via-zinc-950 to-black text-white">
@@ -49,7 +69,7 @@ export default function TeacherProfilePage() {
                     </h2>
 
                     <button
-                        onClick={() => window.location.href = "/teacher"}
+                        onClick={() => window.history.back()}
                         className="text-sm text-gray-400 hover:text-white transition px-3 py-1 rounded-md hover:bg-white/10"
                     >
                         ← Back
@@ -74,11 +94,11 @@ export default function TeacherProfilePage() {
                         <div className="space-y-4">
 
                             <h3 className="text-2xl font-semibold">
-                                {teacher?.name}
+                                {teacher?.name || "No Name"}
                             </h3>
 
                             <p className="text-gray-400">
-                                {teacher?.email}
+                                {teacher?.email || "No Email"}
                             </p>
 
                             <div className="mt-4">
@@ -86,7 +106,7 @@ export default function TeacherProfilePage() {
                                     Teacher ID
                                 </p>
                                 <p className="font-medium">
-                                    {teacher?.id}
+                                    {teacher?.id || "N/A"}
                                 </p>
                             </div>
 
