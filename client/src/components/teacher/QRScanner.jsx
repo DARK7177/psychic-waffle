@@ -1,20 +1,20 @@
 import { Html5Qrcode } from "html5-qrcode";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import api from "../../services/api";
 
 export default function QRScanner({ sessionId }) {
 
     const scannerRef = useRef(null);
+    const lastScannedRef = useRef(null);
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
 
-        let isMounted = true;
         const html5QrCode = new Html5Qrcode("reader");
         scannerRef.current = html5QrCode;
 
         const startScanner = async () => {
             try {
-                // 🔍 Get all cameras
                 const devices = await Html5Qrcode.getCameras();
 
                 if (!devices || devices.length === 0) {
@@ -22,20 +22,13 @@ export default function QRScanner({ sessionId }) {
                     return;
                 }
 
-                let cameraId;
-
-                // 📱 Prefer back camera on mobile
                 const backCamera = devices.find(device =>
                     device.label.toLowerCase().includes("back") ||
                     device.label.toLowerCase().includes("rear") ||
                     device.label.toLowerCase().includes("environment")
                 );
 
-                if (backCamera) {
-                    cameraId = backCamera.id;
-                } else {
-                    cameraId = devices[0].id;
-                }
+                const cameraId = backCamera ? backCamera.id : devices[0].id;
 
                 await html5QrCode.start(
                     cameraId,
@@ -45,9 +38,12 @@ export default function QRScanner({ sessionId }) {
                         aspectRatio: 1.777
                     },
                     async (decodedText) => {
+
+                        if (decodedText === lastScannedRef.current) return;
+                        lastScannedRef.current = decodedText;
+
                         try {
                             const data = JSON.parse(decodedText);
-
                             const token = localStorage.getItem("token");
 
                             await api.post(
@@ -63,12 +59,16 @@ export default function QRScanner({ sessionId }) {
                                 }
                             );
 
-                            alert("Attendance marked ✅");
+                            setMessage("✅ Attendance marked");
 
-                            await html5QrCode.stop();
                         } catch (err) {
-                            alert("Invalid QR or already marked");
+                            setMessage("❌ Already marked / invalid QR");
                         }
+
+                        setTimeout(() => {
+                            lastScannedRef.current = null;
+                            setMessage("");
+                        }, 2000);
                     },
                     () => {
 
@@ -83,7 +83,6 @@ export default function QRScanner({ sessionId }) {
         startScanner();
 
         return () => {
-            isMounted = false;
             if (scannerRef.current) {
                 scannerRef.current.stop().catch(() => { });
             }
@@ -101,6 +100,11 @@ export default function QRScanner({ sessionId }) {
             <div className="bg-white p-4 rounded-xl shadow-inner">
                 <div id="reader" className="w-75" />
             </div>
+            {message && (
+                <p className="mt-4 text-sm text-white">
+                    {message}
+                </p>
+            )}
 
         </div>
     );

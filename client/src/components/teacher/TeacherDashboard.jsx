@@ -10,6 +10,7 @@ import CreateSubject from "./CreateSubject";
 export default function TeacherDashboard() {
 
     const [sessionId, setSessionId] = useState("");
+    const [showScanner, setShowScanner] = useState(false); // 🔥 NEW
 
     const [courses, setCourses] = useState([]);
     const [subjects, setSubjects] = useState([]);
@@ -68,6 +69,7 @@ export default function TeacherDashboard() {
             );
 
             setSessionId(res.data.id);
+            setShowScanner(true);
 
         } catch (err) {
             alert("Failed to start session");
@@ -124,7 +126,28 @@ export default function TeacherDashboard() {
                             Session ID: {sessionId}
                         </p>
 
-                        <QRScanner sessionId={sessionId} />
+                        <div className="flex gap-3 mb-4">
+
+                            <button
+                                onClick={() => setShowScanner(true)}
+                                className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 transition"
+                            >
+                                Open Scanner
+                            </button>
+
+                            <button
+                                onClick={() => setShowScanner(false)}
+                                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 transition"
+                            >
+                                Close Scanner
+                            </button>
+
+                        </div>
+
+
+                        {showScanner && (
+                            <QRScanner sessionId={sessionId} />
+                        )}
 
                     </div>
                 )}

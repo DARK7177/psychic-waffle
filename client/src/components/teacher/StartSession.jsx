@@ -1,7 +1,7 @@
 import { useState } from "react";
 import api from "../../services/api";
 
-export default function StartSession({ setSessionId }) {
+export default function StartSession({ setSessionId, setShowScanner }) {
 
     const [subjectId, setSubjectId] = useState("");
     const [loading, setLoading] = useState(false);
@@ -34,6 +34,8 @@ export default function StartSession({ setSessionId }) {
 
             setSubjectId("");
 
+            setShowScanner(true);
+
         } catch (err) {
             alert(err.response?.data?.message || "Failed to start session");
         } finally {
@@ -65,8 +67,14 @@ export default function StartSession({ setSessionId }) {
                 {loading ? "Starting..." : "Start Session"}
             </button>
 
+            <button
+                onClick={() => setShowScanner(true)}
+                className="mt-3 w-full py-3 rounded-lg bg-blue-500 text-white font-medium hover:scale-[1.02] transition-all duration-200"
+            >
+                Open Scanner
+            </button>
+
         </div>
 
     );
-
 }
