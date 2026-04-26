@@ -78,7 +78,7 @@ export default function TeacherDashboard() {
         try {
             const token = localStorage.getItem("token");
 
-            await api.put(
+            await api.patch(
                 `/api/sessions/${sessionId}/close`,
                 {},
                 {
