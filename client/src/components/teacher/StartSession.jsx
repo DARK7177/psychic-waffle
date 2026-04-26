@@ -1,21 +1,59 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../../services/api";
 
-export default function StartSession({ setSessionId, setShowScanner, sessionId }) {
+import Navbar from "../shared/Navbar";
+import SubjectList from "./SubjectList";
+import QRScanner from "./QRScanner";
+import CreateCourse from "./CreateCourses";
+import CreateSubject from "./CreateSubject";
 
-    const [subjectId, setSubjectId] = useState("");
-    const [loading, setLoading] = useState(false);
+export default function TeacherDashboard() {
 
-    const startSession = async () => {
+    const [sessionId, setSessionId] = useState(null);
+    const [showScanner, setShowScanner] = useState(false);
 
-        if (!subjectId) {
-            alert("Please enter Subject ID");
-            return;
-        }
+    const [courses, setCourses] = useState([]);
+    const [subjects, setSubjects] = useState([]);
 
+    useEffect(() => {
+        fetchCourses();
+        fetchSubjects();
+    }, []);
+
+    const fetchCourses = async () => {
         try {
-            setLoading(true);
+            const token = localStorage.getItem("token");
 
+            const res = await api.get("/api/courses", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            setCourses(res.data);
+        } catch (err) {
+            console.error("Failed to fetch courses");
+        }
+    };
+
+    const fetchSubjects = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            const res = await api.get("/api/subjects", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            setSubjects(res.data);
+        } catch (err) {
+            console.error("Failed to fetch subjects");
+        }
+    };
+
+    const startSession = async (subjectId) => {
+        try {
             const token = localStorage.getItem("token");
 
             const res = await api.post(
@@ -28,17 +66,21 @@ export default function StartSession({ setSessionId, setShowScanner, sessionId }
                 }
             );
 
-            setSessionId(res.data.id);
+            console.log("Session response:", res.data); // debug
+
+
+            const newSessionId = res.data.id || res.data.session?.id;
+
+            if (!newSessionId) {
+                throw new Error("Session ID not returned");
+            }
+
+            setSessionId(newSessionId);
             setShowScanner(true);
 
-            alert("Session started successfully");
-
-            setSubjectId("");
-
         } catch (err) {
-            alert(err.response?.data?.message || "Failed to start session");
-        } finally {
-            setLoading(false);
+            console.error(err);
+            alert("Failed to start session");
         }
     };
 
@@ -58,52 +100,101 @@ export default function StartSession({ setSessionId, setShowScanner, sessionId }
 
             alert("Session closed successfully");
 
-            setSessionId("");
+            setSessionId(null);
             setShowScanner(false);
 
+            await fetchSubjects();
+
         } catch (err) {
-            alert(err.response?.data?.message || "Failed to close session");
+            console.error(err);
+            alert("Failed to close session");
         }
     };
 
     return (
-        <div className="h-full flex flex-col justify-between">
+        <div className="min-h-screen bg-linear-to-br from-black via-zinc-950 to-black text-white">
 
-            <h3 className="text-lg font-semibold mb-4">
-                Start Class Session
-            </h3>
+            <Navbar />
 
-            <input
-                className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/20 transition"
-                placeholder="Enter Subject ID"
-                value={subjectId}
-                onChange={(e) => setSubjectId(e.target.value)}
-            />
+            <div className="p-6 max-w-6xl mx-auto space-y-6">
 
-            <button
-                onClick={startSession}
-                disabled={loading}
-                className="mt-5 w-full py-3 rounded-lg bg-linear-to-r from-green-500 to-emerald-500 text-white font-medium hover:scale-[1.02] transition-all duration-200 disabled:opacity-50"
-            >
-                {loading ? "Starting..." : "Start Session"}
-            </button>
+                <h2 className="text-3xl font-semibold mb-2">
+                    Teacher Dashboard 👨‍🏫
+                </h2>
 
-            <button
-                onClick={() => setShowScanner(true)}
-                disabled={!sessionId}
-                className="mt-3 w-full py-3 rounded-lg bg-blue-500 text-white font-medium hover:scale-[1.02] transition-all duration-200 disabled:opacity-50"
-            >
-                Open Scanner
-            </button>
+                <div className="grid md:grid-cols-2 gap-6">
 
-            {sessionId && (
-                <button
-                    onClick={closeSession}
-                    className="mt-3 w-full py-3 rounded-lg bg-red-500 text-white font-medium hover:scale-[1.02] transition-all duration-200"
-                >
-                    Close Session
-                </button>
-            )}
+                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+                        <CreateCourse setCourses={setCourses} />
+                    </div>
+
+                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+                        <CreateSubject
+                            courses={courses}
+                            setSubjects={setSubjects}
+                        />
+                    </div>
+
+                </div>
+
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+
+                    <h3 className="text-lg font-semibold mb-4">
+                        Your Subjects
+                    </h3>
+
+                    <SubjectList
+                        subjects={subjects}
+                        onStartSession={startSession}
+                    />
+
+                </div>
+
+                {sessionId && (
+                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+
+                        <h3 className="text-lg font-semibold mb-4">
+                            Active Session
+                        </h3>
+
+                        <p className="text-gray-400 mb-4">
+                            Session ID: {sessionId}
+                        </p>
+
+                        <div className="flex gap-3 mb-4 flex-wrap">
+
+                            <button
+                                onClick={() => setShowScanner(true)}
+                                className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 transition"
+                            >
+                                Open Scanner
+                            </button>
+
+                            <button
+                                onClick={() => setShowScanner(false)}
+                                className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 transition"
+                            >
+                                Close Scanner
+                            </button>
+
+
+                            <button
+                                onClick={closeSession}
+                                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 transition"
+                            >
+                                Close Session
+                            </button>
+
+                        </div>
+
+                        {showScanner && (
+                            <QRScanner sessionId={sessionId} />
+                        )}
+
+                    </div>
+                )}
+
+            </div>
 
         </div>
     );
