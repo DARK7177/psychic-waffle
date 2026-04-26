@@ -14,6 +14,16 @@ exports.createSession = asyncHandler(async (req, res) => {
     if (!subject)
         return res.status(404).json({ message: "Subject not found" });
 
+    await prisma.session.updateMany({
+        where: {
+            subjectId,
+            status: "active"
+        },
+        data: {
+            status: "closed"
+        }
+    });
+
     const session = await prisma.session.create({
         data: {
             subjectId,
