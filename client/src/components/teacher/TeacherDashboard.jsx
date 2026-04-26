@@ -10,7 +10,7 @@ import CreateSubject from "./CreateSubject";
 export default function TeacherDashboard() {
 
     const [sessionId, setSessionId] = useState("");
-    const [showScanner, setShowScanner] = useState(false); // 🔥 NEW
+    const [showScanner, setShowScanner] = useState(false);
 
     const [courses, setCourses] = useState([]);
     const [subjects, setSubjects] = useState([]);
@@ -31,7 +31,6 @@ export default function TeacherDashboard() {
             });
 
             setCourses(res.data);
-
         } catch (err) {
             console.error("Failed to fetch courses");
         }
@@ -48,7 +47,6 @@ export default function TeacherDashboard() {
             });
 
             setSubjects(res.data);
-
         } catch (err) {
             console.error("Failed to fetch subjects");
         }
@@ -76,6 +74,32 @@ export default function TeacherDashboard() {
         }
     };
 
+    const closeSession = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            await api.put(
+                `/api/sessions/${sessionId}/close`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            alert("Session closed successfully");
+
+            setSessionId("");
+            setShowScanner(false);
+
+            await fetchSubjects();
+
+        } catch (err) {
+            alert(err.response?.data?.message || "Failed to close session");
+        }
+    };
+
     return (
         <div className="min-h-screen bg-linear-to-br from-black via-zinc-950 to-black text-white">
 
@@ -86,6 +110,7 @@ export default function TeacherDashboard() {
                 <h2 className="text-3xl font-semibold mb-2">
                     Teacher Dashboard 👨‍🏫
                 </h2>
+
 
                 <div className="grid md:grid-cols-2 gap-6">
 
@@ -126,7 +151,7 @@ export default function TeacherDashboard() {
                             Session ID: {sessionId}
                         </p>
 
-                        <div className="flex gap-3 mb-4">
+                        <div className="flex gap-3 mb-4 flex-wrap">
 
                             <button
                                 onClick={() => setShowScanner(true)}
@@ -135,15 +160,22 @@ export default function TeacherDashboard() {
                                 Open Scanner
                             </button>
 
+
                             <button
                                 onClick={() => setShowScanner(false)}
-                                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 transition"
+                                className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 transition"
                             >
                                 Close Scanner
                             </button>
 
-                        </div>
+                            <button
+                                onClick={closeSession}
+                                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 transition"
+                            >
+                                Close Session
+                            </button>
 
+                        </div>
 
                         {showScanner && (
                             <QRScanner sessionId={sessionId} />
