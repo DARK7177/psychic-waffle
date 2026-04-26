@@ -14,7 +14,9 @@ const generateToken = (id, role) => {
 
 exports.registerStudent = asyncHandler(async (req, res) => {
 
-    const { name, email, password, courseCode, photoUrl } = req.body;
+    const { name, password, courseCode, photoUrl } = req.body;
+
+    const email = req.body.email.trim().toLowerCase();
 
     const existingStudent = await prisma.student.findUnique({
         where: { email }
@@ -100,7 +102,8 @@ exports.registerTeacher = asyncHandler(async (req, res) => {
 
 exports.login = asyncHandler(async (req, res) => {
 
-    const { email, password } = req.body;
+    const email = req.body.email.trim().toLowerCase();
+    const password = req.body.password;
 
     let user = await prisma.student.findUnique({ where: { email } });
     let role = "student";
