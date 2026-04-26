@@ -1,7 +1,7 @@
 import { useState } from "react";
 import api from "../../services/api";
 
-export default function StartSession({ setSessionId, setShowScanner }) {
+export default function StartSession({ setSessionId, setShowScanner, sessionId }) {
 
     const [subjectId, setSubjectId] = useState("");
     const [loading, setLoading] = useState(false);
@@ -29,23 +29,44 @@ export default function StartSession({ setSessionId, setShowScanner }) {
             );
 
             setSessionId(res.data.id);
+            setShowScanner(true);
 
             alert("Session started successfully");
 
             setSubjectId("");
-
-            setShowScanner(true);
 
         } catch (err) {
             alert(err.response?.data?.message || "Failed to start session");
         } finally {
             setLoading(false);
         }
+    };
 
+    const closeSession = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            await api.put(
+                `/api/sessions/${sessionId}/close`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            alert("Session closed successfully");
+
+            setSessionId("");
+            setShowScanner(false);
+
+        } catch (err) {
+            alert(err.response?.data?.message || "Failed to close session");
+        }
     };
 
     return (
-
         <div className="h-full flex flex-col justify-between">
 
             <h3 className="text-lg font-semibold mb-4">
@@ -69,12 +90,21 @@ export default function StartSession({ setSessionId, setShowScanner }) {
 
             <button
                 onClick={() => setShowScanner(true)}
-                className="mt-3 w-full py-3 rounded-lg bg-blue-500 text-white font-medium hover:scale-[1.02] transition-all duration-200"
+                disabled={!sessionId}
+                className="mt-3 w-full py-3 rounded-lg bg-blue-500 text-white font-medium hover:scale-[1.02] transition-all duration-200 disabled:opacity-50"
             >
                 Open Scanner
             </button>
 
-        </div>
+            {sessionId && (
+                <button
+                    onClick={closeSession}
+                    className="mt-3 w-full py-3 rounded-lg bg-red-500 text-white font-medium hover:scale-[1.02] transition-all duration-200"
+                >
+                    Close Session
+                </button>
+            )}
 
+        </div>
     );
 }

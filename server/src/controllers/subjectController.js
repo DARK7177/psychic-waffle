@@ -33,7 +33,14 @@ exports.getTeacherSubjects = asyncHandler(async (req, res) => {
             teacherId: req.user.id
         },
         include: {
-            course: true
+            course: true,
+
+            sessions: {
+                orderBy: {
+                    date: "desc"
+                },
+                take: 1
+            }
         }
     });
 

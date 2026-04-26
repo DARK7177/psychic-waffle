@@ -7,29 +7,35 @@ exports.markAttendance = asyncHandler(async (req, res) => {
 
     const { studentId, sessionId } = req.body;
 
+    console.log("Incoming:", { studentId, sessionId });
+
+
     const session = await prisma.session.findUnique({
         where: { id: sessionId },
-        include: {
-            subject: true
-        }
+        include: { subject: true }
     });
 
-    if (!session)
+    if (!session) {
         return res.status(404).json({ message: "Session not found" });
+    }
 
     if (session.status === "closed") {
-        return req.status(400).json({ message: "Session Already Closed" });
+        return res.status(400).json({ message: "Session already closed" });
     }
 
     const student = await prisma.student.findUnique({
         where: { id: studentId }
     });
 
-    if (!student)
+    if (!student) {
         return res.status(404).json({ message: "Student not found" });
+    }
 
-    if (student.courseCode !== session.subject.courseCode)
-        return res.status(403).json({ message: "Student not part of this course" });
+    if (student.courseCode !== session.subject.courseCode) {
+        return res.status(403).json({
+            message: "Student not part of this course"
+        });
+    }
 
     const existing = await prisma.attendance.findFirst({
         where: {
@@ -38,8 +44,11 @@ exports.markAttendance = asyncHandler(async (req, res) => {
         }
     });
 
-    if (existing)
-        return res.status(400).json({ message: "Attendance already marked" });
+    if (existing) {
+        return res.status(400).json({
+            message: "Attendance already marked for this session"
+        });
+    }
 
     const attendance = await prisma.attendance.create({
         data: {
@@ -48,7 +57,7 @@ exports.markAttendance = asyncHandler(async (req, res) => {
         }
     });
 
-    res.status(201).json({
+    return res.status(201).json({
         message: "Attendance marked successfully",
         attendance
     });
@@ -59,24 +68,28 @@ exports.getStudentAttendance = asyncHandler(async (req, res) => {
 
     const { id } = req.params;
 
-    const present = await prisma.attendance.count({
-        where: { studentId: id }
+    const student = await prisma.student.findUnique({
+        where: { id },
+        select: { courseCode: true }
     });
+
+    if (!student) {
+        return res.status(404).json({ message: "Student not found" });
+    }
 
     const totalSessions = await prisma.session.count({
         where: {
             subject: {
-                courseCode: (
-                    await prisma.student.findUnique({
-                        where: { id },
-                        select: { courseCode: true }
-                    })
-                ).courseCode
+                courseCode: student.courseCode
             }
         }
     });
 
-    res.json({
+    const present = await prisma.attendance.count({
+        where: { studentId: id }
+    });
+
+    return res.json({
         present,
         totalSessions,
         percentage: totalSessions
